@@ -51,15 +51,19 @@ RUN apt-get -y update && \
     pecl install imagick && \
     docker-php-ext-enable imagick
 
-# Install mongodb extension
+# Install mongodb extension and others pecl extensions
 RUN apt-get -y update && \
     apt-get -y install --no-install-recommends libssl-dev && \
     pecl install mongodb && \
     echo "extension=mongodb.so" >> /usr/local/etc/php/conf.d/mongodb.ini && \
-    rm -rf /var/lib/apt/lists/* && \
-    docker-php-ext-enable mongodb
+    pecl install apcu_bc-stable &&\
+    echo "extension=apcu.so\nextension=apc.so\napc.shm_size=256M\napc.ttl=7200\napc.enable_cli=1\napc.gc_ttl=3600\napc.entries_hint=4096\napc.slam_defense=1\napc.serializer=php\n" >> /usr/local/etc/php/conf.d/apcu.ini &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    docker-php-ext-enable mongodb &&\
+    docker-php-ext-enable apcu &&\
+    docker-php-ext-enable apc
 
-# Other PHP7 Extensions
+# Other PHP7 Extensionsextension=apc.so
 RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install pdo_sqlite && \
     docker-php-ext-install mysqli && \
@@ -88,6 +92,7 @@ RUN su - && \
     sudo adduser --gecos 'GECOS' --force-badname --gid 1024 ${owner} && \
     sudo passwd -d ${owner} && \
     sudo usermod -a -G ${dockergrp} ${owner} && \
+    sudo usermod -a -G sudo ${owner} &&\
     sudo chown -R ${owner} ${projectdir} && \
     sudo chmod -R u+rwx ${projectdir}
 

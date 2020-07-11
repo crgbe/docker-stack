@@ -5,6 +5,9 @@ services:
     build:
       context: ./docker-compose/webserver
     container_name: 'fixi-php7.1-apache'
+    networks:
+      app_network:
+        ipv4_address: 172.22.0.2
     restart: 'always'
     ports:
       - "127.0.0.1:8080:80"
@@ -22,6 +25,9 @@ services:
     build:
       context: ./docker-compose/mysql
     container_name: 'fixi-mysql-database'
+    networks:
+      app_network:
+        ipv4_address: 172.22.0.3
     restart: 'always'
     ports:
       - "127.0.0.1:9301:3306"
@@ -37,6 +43,9 @@ services:
   mongodb-database:
     image: library/mongo:4.2.8
     container_name: 'fixi-mongodb-database'
+    networks:
+      app_network:
+        ipv4_address: 172.22.0.4
     restart: 'always'
     ports:
     - "127.0.0.1:8081:8081"
@@ -47,3 +56,10 @@ services:
       MONGO_INITDB_DATABASE: fixi
       MONGO_INITDB_ROOT_USERNAME: crgbe
       MONGO_INITDB_ROOT_PASSWORD: jetsky17
+
+networks:
+  app_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
