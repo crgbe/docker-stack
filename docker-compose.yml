@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  webserver:
+    build:
+      context: ./docker-compose/webserver
+    container_name: 'fixi-php7.1-apache'
+    restart: 'always'
+    ports:
+      - "127.0.0.1:8080:80"
+      - "127.0.0.1:2053:443"
+    depends_on:
+      - mysql-database
+      - mongodb-database
+    volumes:
+      - "./:/var/www/fixi"
+      - "./docker-compose/etc/php/7.1/php.ini:/usr/local/etc/php/php.ini"
+      - "./docker-compose/etc/apache2/sites-available:/etc/apache2/sites-available"
+      - "./docker-compose/var/log/apache2:/var/log/apache2"
+
+  mysql-database:
+    build:
+      context: ./docker-compose/mysql
+    container_name: 'fixi-mysql-database'
+    restart: 'always'
+    ports:
+      - "127.0.0.1:9301:3306"
+    volumes:
+      - "./docker-compose/var/data/mysql:/var/lib/mysql"
+      - "./docker-compose/var/log/mysql:/var/log/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: scorpion2020
+      MYSQL_DATABASE: fixi
+      MYSQL_USER: crgbe
+      MYSQL_PASSWORD: jetsky17
+
+  mongodb-database:
+    image: library/mongo:4.2.8
+    container_name: 'fixi-mongodb-database'
+    restart: 'always'
+    ports:
+    - "127.0.0.1:8081:8081"
+    volumes:
+      - "./docker-compose/var/data/mongodb:/data/db"
+      - "./docker-compose/var/log/mongodb:/var/log/mongodb"
+    environment:
+      MONGO_INITDB_DATABASE: fixi
+      MONGO_INITDB_ROOT_USERNAME: crgbe
+      MONGO_INITDB_ROOT_PASSWORD: jetsky17
